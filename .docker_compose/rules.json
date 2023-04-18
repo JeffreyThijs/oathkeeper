@@ -1,16 +1,18 @@
 [
   {
-    "id": "allow-anonymous-with-header-mutator",
+    "id": "redirect-to-dev",
     "upstream": {
-      "url": "https://httpbin.org/anything/header"
+      "url": "https://dev.aloxy.io",
+      "preserve_host": false,
+      "strip_path": "/dev"
     },
     "match": {
-      "url": "http://<127.0.0.1|localhost>:4455/anything/header",
-      "methods": ["GET"]
+      "url": "<http|https>://<127.0.0.1|localhost>:4200/dev/<.*>",
+      "methods": ["GET", "POST", "PUT", "PATCH", "OPTIONS", "DELETE"]
     },
     "authenticators": [
       {
-        "handler": "anonymous"
+        "handler": "noop"
       }
     ],
     "authorizer": {
@@ -21,77 +23,27 @@
         "handler": "header",
         "config": {
           "headers": {
-            "X-User": "{{ print .Subject }}"
+            "jeffrey": "thijs",
+            "Cookie": "insert cookie",
+            "Origin": "http://localhost:4200",
+            "Referer": "http://localhost:4200/"
           }
         }
       }
     ]
   },
   {
-    "id": "deny-anonymous",
+    "id": "redirect-to-webapp",
     "upstream": {
-      "url": "https://httpbin.org/anything/deny"
+      "url": "http://localhost:4201"
     },
     "match": {
-      "url": "http://<127.0.0.1|localhost>:4455/anything/deny",
-      "methods": ["GET"]
+      "url": "<http|https>://<127.0.0.1|localhost>:4200/<(?!dev).*>",
+      "methods": ["GET", "POST", "PUT", "PATCH", "OPTIONS", "DELETE"]
     },
     "authenticators": [
-      {
-        "handler": "anonymous"
-      }
-    ],
-    "authorizer": {
-      "handler": "deny"
-    },
-    "mutators": [
       {
         "handler": "noop"
-      }
-    ],
-    "errors": [
-      {
-        "handler": "json",
-        "config": {
-          "when": [
-            {
-              "request": {
-                "header": {
-                  "accept": ["application/json"]
-                }
-              }
-            }
-          ]
-        }
-      },
-      {
-        "handler": "redirect",
-        "config": {
-          "when": [
-            {
-              "request": {
-                "header": {
-                  "accept": ["text/*"]
-                }
-              }
-            }
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "id": "allow-anonymous-with-id-token-mutator",
-    "upstream": {
-      "url": "https://httpbin.org/anything/id_token"
-    },
-    "match": {
-      "url": "http://<127.0.0.1|localhost>:4455/anything/id_token",
-      "methods": ["GET"]
-    },
-    "authenticators": [
-      {
-        "handler": "anonymous"
       }
     ],
     "authorizer": {
@@ -99,7 +51,15 @@
     },
     "mutators": [
       {
-        "handler": "id_token"
+        "handler": "header",
+        "config": {
+          "headers": {
+            "jeffrey": "thijs",
+            "Cookie": "insert cookie",
+            "Origin": "http://localhost:4200",
+            "Referer": "http://localhost:4200/"
+          }
+        }
       }
     ]
   }

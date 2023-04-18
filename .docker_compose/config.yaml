@@ -1,12 +1,13 @@
 serve:
   proxy:
-    port: 4455 # run the proxy at port 4455
+    port: 4200 # run the proxy at port 4455
   api:
-    port: 4456 # run the api at port 4456
+    port: 4458 # run the api at port 4456
 
 access_rules:
   repositories:
     - file:///etc/config/oathkeeper/rules.json
+    # - file:///home/jthijs/devel/aloxy/oathkeeper/.docker_compose/rules.json
 
 errors:
   fallback:
@@ -26,23 +27,19 @@ mutators:
     enabled: true
     config:
       headers:
-        X-User: "{{ print .Subject }}"
+        Cookie: "insert cookie"
+        Origin: "http://localhost:4200"
+        Referer: "http://localhost:4200/"
   noop:
     enabled: true
-  id_token:
-    enabled: true
-    config:
-      issuer_url: http://localhost:4455/
-      jwks_url: file:///etc/config/oathkeeper/jwks.json
 
 authorizers:
   allow:
     enabled: true
-  deny:
-    enabled: true
 
 authenticators:
-  anonymous:
+  noop:
     enabled: true
-    config:
-      subject: guest
+
+log:
+  leak_sensitive_values: true
